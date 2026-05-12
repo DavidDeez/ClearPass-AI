@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearPass — AI Trust Verification</title>
+    <meta name="description" content="Portable KYC and AI trust-scoring infrastructure for fintech">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#g1)" stroke-width="2"/>
+                    <path d="M14 8L20 11V17L14 20L8 17V11L14 8Z" fill="url(#g1)" opacity="0.6"/>
+                    <circle cx="14" cy="14" r="3" fill="#fff"/>
+                    <defs><linearGradient id="g1" x1="2" y1="2" x2="26" y2="26">
+                        <stop stop-color="#6C5CE7"/><stop offset="1" stop-color="#00D2FF"/>
+                    </linearGradient></defs>
+                </svg>
+            </div>
+            <span class="logo-text">ClearPass<span class="logo-ai">AI</span></span>
+        </div>
+        <div class="header-status">
+            <span class="status-dot" id="serverDot"></span>
+            <span class="status-text" id="serverStatus">Checking...</span>
+        </div>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="steps-bar">
+        <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Identity</span></div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Biometrics</span></div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Financials</span></div>
+        <div class="step-line"></div>
+        <div class="step" data-step="4"><span class="step-num">4</span><span class="step-label">Results</span></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- STEP 1: Identity -->
+        <section class="card step-panel active" id="step1">
+            <div class="card-header">
+                <h2>Personal Identity</h2>
+                <p>Enter the subject's identification details</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="bvn">BVN (Bank Verification Number)</label>
+                    <input type="text" id="bvn" placeholder="22345678901" maxlength="11" autocomplete="off">
+                    <span class="hint">11-digit unique identifier</span>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="+2348012345678" autocomplete="off">
+                    <span class="hint">Include country code</span>
+                </div>
+                <div class="form-group">
+                    <label for="deviceId">Device ID</label>
+                    <input type="text" id="deviceId" placeholder="Auto-generated" autocomplete="off">
+                    <span class="hint">Leave blank to auto-generate</span>
+                </div>
+                <div class="form-group">
+                    <label for="address">Residential Address</label>
+                    <input type="text" id="address" placeholder="15 Admiralty Way, Lekki, Lagos" autocomplete="off">
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-primary" onclick="goToStep(2)">Continue <span class="arrow">→</span></button>
+            </div>
+        </section>
+
+        <!-- STEP 2: Biometrics -->
+        <section class="card step-panel" id="step2">
+            <div class="card-header">
+                <h2>Biometric Verification</h2>
+                <p>Capture a live selfie to verify your identity</p>
+            </div>
+            <div class="bio-grid">
+                <!-- Live Selfie -->
+                <div class="bio-card">
+                    <h3>📸 Live Selfie</h3>
+                    <div class="camera-box" id="cameraBox" onclick="document.getElementById('selfieUpload').click()">
+                        <video id="cameraFeed" autoplay playsinline style="display:none"></video>
+                        <canvas id="cameraCanvas" style="display:none"></canvas>
+                        <img id="selfiePreview" style="display:none" alt="Selfie preview">
+                        <div class="upload-placeholder" id="selfiePlaceholder">
+                            <div class="upload-icon">
+                                <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                            </div>
+                            <p>Click to upload selfie</p>
+                            <span class="hint">or use camera below</span>
+                        </div>
+                        <div class="camera-overlay" id="cameraOverlay" style="display:none">
+                            <div class="face-guide"></div>
+                            <p>Position face in the circle</p>
+                        </div>
+                    </div>
+                    <input type="file" id="selfieUpload" accept="image/*" capture="user" style="display:none" onchange="handleSelfieUpload(event)">
+                    <div class="bio-actions">
+                        <button class="btn btn-accent" id="uploadSelfieBtn" onclick="event.stopPropagation(); document.getElementById('selfieUpload').click()">📁 Upload Photo</button>
+                        <button class="btn btn-outline" id="startCameraBtn" onclick="event.stopPropagation(); startCamera()">🎥 Camera</button>
+                        <button class="btn btn-accent" id="captureBtn" onclick="event.stopPropagation(); capturePhoto()" style="display:none">📸 Capture</button>
+                        <button class="btn btn-outline" id="retakeBtn" onclick="event.stopPropagation(); retakePhoto()" style="display:none">↩ Retake</button>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+                <button class="btn btn-primary" onclick="goToStep(3)">Continue <span class="arrow">→</span></button>
+            </div>
+        </section>
+
+        <!-- STEP 3: Financials -->
+        <section class="card step-panel" id="step3">
+            <div class="card-header">
+                <h2>Financial Transactions</h2>
+                <p>Enter recent bank transactions for behavior profiling</p>
+            </div>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('manual')">Manual Entry</button>
+                <button class="tab" onclick="switchTab('json')">Paste JSON</button>
+                <button class="tab" onclick="switchTab('sample')">Use Sample Data</button>
+            </div>
+
+            <!-- Manual Entry -->
+            <div class="tab-panel active" id="tab-manual">
+                <div id="txList"></div>
+                <button class="btn btn-outline btn-sm" onclick="addTransaction()">+ Add Transaction</button>
+            </div>
+
+            <!-- JSON Paste -->
+            <div class="tab-panel" id="tab-json">
+                <div class="form-group">
+                    <label>Paste transaction JSON array</label>
+                    <textarea id="jsonInput" rows="10" placeholder='[{"amount":150000,"date":"2025-01-15","status":"successful","narration":"Salary","type":"credit"}]'></textarea>
+                </div>
+            </div>
+
+            <!-- Sample Data -->
+            <div class="tab-panel" id="tab-sample">
+                <div class="sample-info">
+                    <div class="sample-icon">📊</div>
+                    <h3>Sample Nigerian Fintech Data</h3>
+                    <p>10 realistic transactions including salary credits, bill payments, and a loan repayment — ready for instant testing.</p>
+                    <button class="btn btn-accent" onclick="loadSampleData()">Load Sample Data</button>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+                <button class="btn btn-primary btn-lg" id="verifyBtn" onclick="runVerification()">
+                    <span class="btn-content">
+                        <svg class="btn-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        Run AI Verification
+                    </span>
+                    <span class="btn-loading" style="display:none">
+                        <div class="spinner"></div> Analyzing...
+                    </span>
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 4: Results -->
+        <section class="card step-panel" id="step4">
+            <div id="resultsContent"></div>
+            <div class="card-actions">
+                <button class="btn btn-ghost" onclick="resetForm()">← New Verification</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>ClearPass AI · Portable KYC & Trust-Scoring Infrastructure · Hackathon 2026</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
