@@ -1,0 +1,31 @@
+# ClearPass AI Backend — Dependencies
+# Relaxed pins for Python 3.14 compatibility
+
+# === Web Framework ===
+fastapi
+uvicorn[standard]
+pydantic
+
+# === ML / AI ===
+xgboost
+scikit-learn
+shap
+numpy
+pandas
+
+# === Face Recognition ===
+facenet-pytorch
+Pillow
+torch
+torchvision
+
+# === Graph Analytics ===
+networkx
+python-louvain
+
+# === Caching ===
+redis
+
+# === Utilities ===
+python-multipart
+httpx
